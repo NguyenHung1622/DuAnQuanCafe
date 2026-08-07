@@ -4,19 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CafeManager.WinForms.Forms;
 
-public sealed class LoginLogForm : Form
+public sealed partial class LoginLogForm : Form
 {
-    private readonly DataGridView _grid = Ui.Grid();
-    private readonly TextBox _search = Ui.TextBox(220);
-
     public LoginLogForm()
     {
-        Text = "Nhật ký đăng nhập";
-        WindowState = FormWindowState.Maximized;
-        Controls.Add(_grid);
-        Controls.Add(Ui.Row(Ui.Label("Tìm tài khoản", 110), _search,
-            Ui.Button("Tìm", (_, _) => LoadData()),
-            Ui.Button("Làm mới", (_, _) => { _search.Clear(); LoadData(); })));
+        InitializeComponent();
+        Ui.WireButton(this, "Tìm", (_, _) => LoadData());
+        Ui.WireButton(this, "Làm mới", (_, _) => { _search.Clear(); LoadData(); });
         Load += (_, _) => LoadData();
     }
 

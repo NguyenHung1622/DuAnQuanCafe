@@ -4,60 +4,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CafeManager.WinForms.Forms;
 
-public sealed class EmployeeManagementForm : Form
+public sealed partial class EmployeeManagementForm : Form
 {
-    private readonly DataGridView _grid = Ui.Grid();
-    private readonly TextBox _search = Ui.TextBox(210);
-    private readonly TextBox _fullName = Ui.TextBox();
-    private readonly ComboBox _gender = Ui.ComboBox();
-    private readonly DateTimePicker _birthDate = new() { Width = 220, Format = DateTimePickerFormat.Short };
-    private readonly TextBox _phone = Ui.TextBox();
-    private readonly TextBox _address = Ui.TextBox();
-    private readonly TextBox _position = Ui.TextBox();
-    private readonly DateTimePicker _hireDate = new() { Width = 220, Format = DateTimePickerFormat.Short };
     private int? _selectedId;
 
     public EmployeeManagementForm()
     {
-        Text = "Quản lý nhân viên";
-        _gender.Items.AddRange(["Nam", "Nữ", "Khác"]);
+        InitializeComponent();
+        _gender.Items.AddRange(new object[] { "Nam", "Nữ", "Khác" });
         _gender.SelectedIndex = 0;
-
-        var editor = new TableLayoutPanel
-        {
-            Dock = DockStyle.Right,
-            Width = 385,
-            Padding = new Padding(12),
-            ColumnCount = 2,
-            RowCount = 9,
-            AutoScroll = true
-        };
-        editor.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
-        editor.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        AddRow(editor, 0, "Họ tên", _fullName);
-        AddRow(editor, 1, "Giới tính", _gender);
-        AddRow(editor, 2, "Ngày sinh", _birthDate);
-        AddRow(editor, 3, "Điện thoại", _phone);
-        AddRow(editor, 4, "Địa chỉ", _address);
-        AddRow(editor, 5, "Chức vụ", _position);
-        AddRow(editor, 6, "Ngày vào làm", _hireDate);
-
-        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, WrapContents = true };
-        buttons.Controls.AddRange([
-            Ui.Button("Thêm", (_, _) => Add()),
-            Ui.Button("Cập nhật", (_, _) => UpdateItem()),
-            Ui.Button("Xóa", (_, _) => Delete()),
-            Ui.Button("Làm mới", (_, _) => ClearEditor())
-        ]);
-        editor.Controls.Add(buttons, 0, 7);
-        editor.SetColumnSpan(buttons, 2);
-
-        Controls.Add(_grid);
-        Controls.Add(editor);
-        Controls.Add(Ui.Row(Ui.Label("Tìm nhân viên", 115), _search,
-            Ui.Button("Tìm", (_, _) => LoadData()),
-            Ui.Button("Tất cả", (_, _) => { _search.Clear(); LoadData(); })));
-
+        Ui.WireButton(this, "Thêm", (_, _) => Add());
+        Ui.WireButton(this, "Cập nhật", (_, _) => UpdateItem());
+        Ui.WireButton(this, "Xóa", (_, _) => Delete());
+        Ui.WireButton(this, "Làm mới", (_, _) => ClearEditor());
+        Ui.WireButton(this, "Tìm", (_, _) => LoadData());
+        Ui.WireButton(this, "Tất cả", (_, _) => { _search.Clear(); LoadData(); });
         _grid.CellClick += (_, _) => SelectRow();
         Load += (_, _) => LoadData();
     }

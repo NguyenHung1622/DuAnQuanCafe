@@ -6,48 +6,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CafeManager.WinForms.Forms;
 
-public sealed class ReportsForm : Form
+public sealed partial class ReportsForm : Form
 {
-    private readonly DateTimePicker _from = new() { Width = 130, Format = DateTimePickerFormat.Short, Value = DateTime.Today.AddDays(-6) };
-    private readonly DateTimePicker _to = new() { Width = 130, Format = DateTimePickerFormat.Short, Value = DateTime.Today };
-    private readonly Label _todayRevenue = SummaryLabel("Hôm nay\n0 đ");
-    private readonly Label _monthRevenue = SummaryLabel("Tháng này\n0 đ");
-    private readonly Label _yearRevenue = SummaryLabel("Năm nay\n0 đ");
-    private readonly Label _openTables = SummaryLabel("Bàn phục vụ\n0");
-    private readonly DataGridView _revenueGrid = Ui.Grid();
-    private readonly DataGridView _topProductsGrid = Ui.Grid();
-    private readonly RevenueChart _chart = new() { Dock = DockStyle.Fill };
     private List<RevenueExportRow> _currentRows = [];
 
     public ReportsForm()
     {
-        Text = "Thống kê và Dashboard";
-
-        var toolbar = Ui.Row(
-            Ui.Label("Từ ngày", 70), _from,
-            Ui.Label("Đến ngày", 80), _to,
-            Ui.Button("Thống kê", (_, _) => LoadReports(), 100),
-            Ui.Button("Xuất Excel", (_, _) => ExportExcel(), 110));
-
-        var cards = new TableLayoutPanel { Dock = DockStyle.Top, Height = 105, ColumnCount = 4, Padding = new Padding(6) };
-        for (int i = 0; i < 4; i++) cards.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
-        cards.Controls.Add(_todayRevenue, 0, 0);
-        cards.Controls.Add(_monthRevenue, 1, 0);
-        cards.Controls.Add(_yearRevenue, 2, 0);
-        cards.Controls.Add(_openTables, 3, 0);
-
-        var tabs = new TabControl { Dock = DockStyle.Fill, Font = Ui.NormalFont };
-        var dashboardTab = new TabPage("Dashboard biểu đồ");
-        dashboardTab.Controls.Add(_chart);
-        var revenueTab = new TabPage("Doanh thu theo ngày");
-        revenueTab.Controls.Add(_revenueGrid);
-        var topTab = new TabPage("Món bán chạy");
-        topTab.Controls.Add(_topProductsGrid);
-        tabs.TabPages.AddRange([dashboardTab, revenueTab, topTab]);
-
-        Controls.Add(tabs);
-        Controls.Add(cards);
-        Controls.Add(toolbar);
+        InitializeComponent();
+        _from.Value = DateTime.Today.AddDays(-6);
+        _to.Value = DateTime.Today;
+        Ui.WireButton(this, "Thống kê", (_, _) => LoadReports());
+        Ui.WireButton(this, "Xuất Excel", (_, _) => ExportExcel());
         Load += (_, _) => LoadReports();
     }
 

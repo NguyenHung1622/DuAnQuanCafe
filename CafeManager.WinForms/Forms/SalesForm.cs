@@ -6,76 +6,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CafeManager.WinForms.Forms;
 
-public sealed class SalesForm : Form
+public sealed partial class SalesForm : Form
 {
-    private readonly FlowLayoutPanel _tablesPanel = new()
-    {
-        Dock = DockStyle.Fill,
-        AutoScroll = true,
-        WrapContents = true,
-        Padding = new Padding(8)
-    };
-    private readonly DataGridView _productsGrid = Ui.Grid();
-    private readonly DataGridView _detailsGrid = Ui.Grid();
-    private readonly TextBox _productSearch = Ui.TextBox(150);
-    private readonly ComboBox _categoryFilter = Ui.ComboBox(150);
-    private readonly ComboBox _customer = Ui.ComboBox(220);
-    private readonly NumericUpDown _discount = new() { Width = 150, Maximum = 100_000_000, Increment = 1000, ThousandsSeparator = true, Font = Ui.NormalFont };
-    private readonly Label _selectedTableLabel = new() { Text = "Chưa chọn bàn", Dock = DockStyle.Top, Height = 42, Font = new Font("Segoe UI Semibold", 15F), TextAlign = ContentAlignment.MiddleCenter };
-    private readonly Label _subtotalLabel = new() { Text = "Tạm tính: 0 đ", AutoSize = true, Font = new Font("Segoe UI Semibold", 11F), Margin = new Padding(8) };
-    private readonly Label _totalLabel = new() { Text = "Tổng: 0 đ", AutoSize = true, Font = new Font("Segoe UI Semibold", 13F), Margin = new Padding(8) };
     private int? _selectedTableId;
     private int? _currentInvoiceId;
     private int? _lastPaidInvoiceId;
 
     public SalesForm()
     {
-        Text = "Bán hàng";
-        var main = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 1 };
-        main.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 24));
-        main.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36));
-        main.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40));
-
-        var tableGroup = new GroupBox { Text = "Danh sách bàn", Dock = DockStyle.Fill, Font = Ui.NormalFont };
-        tableGroup.Controls.Add(_tablesPanel);
-
-        var productGroup = new GroupBox { Text = "Danh sách món", Dock = DockStyle.Fill, Font = Ui.NormalFont };
-        productGroup.Controls.Add(_productsGrid);
-        productGroup.Controls.Add(Ui.Row(_productSearch, _categoryFilter,
-            Ui.Button("Lọc", (_, _) => LoadProducts(), 75),
-            Ui.Button("Thêm món", (_, _) => AddSelectedProduct(), 105)));
-
-        var invoiceGroup = new GroupBox { Text = "Hóa đơn", Dock = DockStyle.Fill, Font = Ui.NormalFont };
-        var invoiceBottom = new FlowLayoutPanel
-        {
-            Dock = DockStyle.Bottom,
-            Height = 180,
-            FlowDirection = FlowDirection.LeftToRight,
-            WrapContents = true,
-            Padding = new Padding(5)
-        };
-        invoiceBottom.Controls.AddRange([
-            Ui.Button("+ Số lượng", (_, _) => ChangeQuantity(1), 110),
-            Ui.Button("- Số lượng", (_, _) => ChangeQuantity(-1), 110),
-            Ui.Button("Xóa món", (_, _) => RemoveDetail(), 100),
-            Ui.Button("Chuyển bàn", (_, _) => TransferTable(), 110),
-            Ui.Button("Gộp HĐ", (_, _) => MergeInvoice(), 100),
-            Ui.Label("Khách hàng", 95), _customer,
-            Ui.Label("Giảm giá", 80), _discount,
-            Ui.Button("Áp dụng", (_, _) => RefreshTotals(), 90),
-            _subtotalLabel, _totalLabel,
-            Ui.Button("Thanh toán", (_, _) => Pay(), 120),
-            Ui.Button("In hóa đơn", (_, _) => PrintInvoice(), 120)
-        ]);
-        invoiceGroup.Controls.Add(_detailsGrid);
-        invoiceGroup.Controls.Add(invoiceBottom);
-        invoiceGroup.Controls.Add(_selectedTableLabel);
-
-        main.Controls.Add(tableGroup, 0, 0);
-        main.Controls.Add(productGroup, 1, 0);
-        main.Controls.Add(invoiceGroup, 2, 0);
-        Controls.Add(main);
-
+        InitializeComponent();
+        Ui.WireButton(this, "Lọc", (_, _) => LoadProducts());
+        Ui.WireButton(this, "Thêm món", (_, _) => AddSelectedProduct());
+        Ui.WireButton(this, "+ Số lượng", (_, _) => ChangeQuantity(1));
+        Ui.WireButton(this, "- Số lượng", (_, _) => ChangeQuantity(-1));
+        Ui.WireButton(this, "Xóa món", (_, _) => RemoveDetail());
+        Ui.WireButton(this, "Chuyển bàn", (_, _) => TransferTable());
+        Ui.WireButton(this, "Gộp HĐ", (_, _) => MergeInvoice());
+        Ui.WireButton(this, "Áp dụng", (_, _) => RefreshTotals());
+        Ui.WireButton(this, "Thanh toán", (_, _) => Pay());
+        Ui.WireButton(this, "In hóa đơn", (_, _) => PrintInvoice());
         _productsGrid.CellDoubleClick += (_, _) => AddSelectedProduct();
         _discount.ValueChanged += (_, _) => RefreshTotals();
         Load += (_, _) =>

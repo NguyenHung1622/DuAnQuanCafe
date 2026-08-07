@@ -5,41 +5,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CafeManager.WinForms.Forms;
 
-public sealed class TableManagementForm : Form
+public sealed partial class TableManagementForm : Form
 {
-    private readonly DataGridView _grid = Ui.Grid();
-    private readonly TextBox _search = Ui.TextBox(200);
-    private readonly TextBox _name = Ui.TextBox();
-    private readonly ComboBox _status = Ui.ComboBox();
     private int? _selectedId;
 
     public TableManagementForm()
     {
-        Text = "Quản lý bàn";
+        InitializeComponent();
         _status.DataSource = Enum.GetValues<TableStatus>();
-
-        var editor = new TableLayoutPanel { Dock = DockStyle.Right, Width = 390, Padding = new Padding(15), ColumnCount = 2, RowCount = 4 };
-        editor.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
-        editor.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        editor.Controls.Add(Ui.Label("Tên bàn", 115), 0, 0);
-        editor.Controls.Add(_name, 1, 0);
-        editor.Controls.Add(Ui.Label("Trạng thái", 115), 0, 1);
-        editor.Controls.Add(_status, 1, 1);
-        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, WrapContents = true };
-        buttons.Controls.AddRange([
-            Ui.Button("Thêm", (_, _) => Add()),
-            Ui.Button("Cập nhật", (_, _) => UpdateItem()),
-            Ui.Button("Xóa", (_, _) => Delete()),
-            Ui.Button("Làm mới", (_, _) => ClearEditor())
-        ]);
-        editor.Controls.Add(buttons, 0, 2);
-        editor.SetColumnSpan(buttons, 2);
-
-        Controls.Add(_grid);
-        Controls.Add(editor);
-        Controls.Add(Ui.Row(Ui.Label("Tìm bàn", 80), _search,
-            Ui.Button("Tìm", (_, _) => LoadData()),
-            Ui.Button("Tất cả", (_, _) => { _search.Clear(); LoadData(); })));
+        Ui.WireButton(this, "Thêm", (_, _) => Add());
+        Ui.WireButton(this, "Cập nhật", (_, _) => UpdateItem());
+        Ui.WireButton(this, "Xóa", (_, _) => Delete());
+        Ui.WireButton(this, "Làm mới", (_, _) => ClearEditor());
+        Ui.WireButton(this, "Tìm", (_, _) => LoadData());
+        Ui.WireButton(this, "Tất cả", (_, _) => { _search.Clear(); LoadData(); });
         _grid.CellClick += (_, _) => SelectRow();
         _grid.CellFormatting += GridCellFormatting;
         Load += (_, _) => LoadData();

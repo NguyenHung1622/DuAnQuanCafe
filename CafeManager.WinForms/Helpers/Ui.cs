@@ -75,6 +75,30 @@ public static class Ui
         return panel;
     }
 
+    public static Button? FindButton(Control root, string text)
+    {
+        foreach (Control control in root.Controls)
+        {
+            if (control is Button button && button.Text == text)
+                return button;
+
+            Button? nested = FindButton(control, text);
+            if (nested is not null)
+                return nested;
+        }
+
+        return null;
+    }
+
+    public static void WireButton(Control root, string text, EventHandler handler)
+    {
+        Button? button = FindButton(root, text);
+        if (button is null)
+            throw new InvalidOperationException($"Không tìm thấy nút '{text}' trên {root.Name}.");
+
+        button.Click += handler;
+    }
+
     public static bool Confirm(string message) => MessageBox.Show(
         message,
         "Xác nhận",

@@ -4,65 +4,32 @@ using CafeManager.WinForms.Services;
 
 namespace CafeManager.WinForms.Forms;
 
-public sealed class MainForm : Form
+public sealed partial class MainForm : Form
 {
-    private readonly Panel _content = new() { Dock = DockStyle.Fill };
     private Form? _child;
 
     public MainForm()
     {
-        Text = "Cafe Manager - Quản lý quán café";
-        WindowState = FormWindowState.Maximized;
-        MinimumSize = new Size(1100, 700);
+        InitializeComponent();
+        _userLabel.Text = $"{AppSession.CurrentAccount?.Employee?.FullName}\n({AppSession.CurrentAccount?.Role})";
+        Ui.WireButton(this, "Bán hàng", (_, _) => Open(new SalesForm()));
+        Ui.WireButton(this, "Bàn", (_, _) => Open(new TableManagementForm()));
+        Ui.WireButton(this, "Danh mục", (_, _) => Open(new CategoryManagementForm()));
+        Ui.WireButton(this, "Đồ uống", (_, _) => Open(new ProductManagementForm()));
+        Ui.WireButton(this, "Khách hàng", (_, _) => Open(new CustomerManagementForm()));
+        Ui.WireButton(this, "Thống kê", (_, _) => Open(new ReportsForm()));
+        Ui.WireButton(this, "Nhân viên", (_, _) => Open(new EmployeeManagementForm()));
+        Ui.WireButton(this, "Tài khoản", (_, _) => Open(new AccountManagementForm()));
+        Ui.WireButton(this, "Nhật ký", (_, _) => Open(new LoginLogForm()));
+        Ui.WireButton(this, "Đổi mật khẩu", (_, _) => new ChangePasswordForm().ShowDialog(this));
+        Ui.WireButton(this, "Đăng xuất", (_, _) => Close());
 
-        var sidebar = new FlowLayoutPanel
+        foreach (string adminText in new[] { "Nhân viên", "Tài khoản", "Nhật ký" })
         {
-            Dock = DockStyle.Left,
-            Width = 210,
-            FlowDirection = FlowDirection.TopDown,
-            WrapContents = false,
-            AutoScroll = true,
-            Padding = new Padding(10)
-        };
-
-        var lblUser = new Label
-        {
-            Width = 180,
-            Height = 85,
-            Font = new Font("Segoe UI Semibold", 11F),
-            TextAlign = ContentAlignment.MiddleCenter,
-            Text = $"{AppSession.CurrentAccount?.Employee?.FullName}\n({AppSession.CurrentAccount?.Role})"
-        };
-        sidebar.Controls.Add(lblUser);
-        sidebar.Controls.Add(MenuButton("Bán hàng", () => Open(new SalesForm())));
-        sidebar.Controls.Add(MenuButton("Bàn", () => Open(new TableManagementForm())));
-        sidebar.Controls.Add(MenuButton("Danh mục", () => Open(new CategoryManagementForm())));
-        sidebar.Controls.Add(MenuButton("Đồ uống", () => Open(new ProductManagementForm())));
-        sidebar.Controls.Add(MenuButton("Khách hàng", () => Open(new CustomerManagementForm())));
-        sidebar.Controls.Add(MenuButton("Thống kê", () => Open(new ReportsForm())));
-
-        if (AppSession.IsAdmin)
-        {
-            sidebar.Controls.Add(MenuButton("Nhân viên", () => Open(new EmployeeManagementForm())));
-            sidebar.Controls.Add(MenuButton("Tài khoản", () => Open(new AccountManagementForm())));
-            sidebar.Controls.Add(MenuButton("Nhật ký", () => Open(new LoginLogForm())));
+            Button? adminButton = Ui.FindButton(this, adminText);
+            if (adminButton is not null)
+                adminButton.Visible = AppSession.IsAdmin;
         }
-
-        sidebar.Controls.Add(MenuButton("Đổi mật khẩu", () => new ChangePasswordForm().ShowDialog(this)));
-        sidebar.Controls.Add(MenuButton("Đăng xuất", Close));
-
-        var header = new Label
-        {
-            Dock = DockStyle.Top,
-            Height = 65,
-            Text = "HỆ THỐNG QUẢN LÝ QUÁN CÀ PHÊ",
-            Font = new Font("Segoe UI Semibold", 20F),
-            TextAlign = ContentAlignment.MiddleCenter
-        };
-
-        Controls.Add(_content);
-        Controls.Add(sidebar);
-        Controls.Add(header);
 
         Shown += (_, _) => Open(new SalesForm());
         FormClosed += (_, _) => WriteLogout();

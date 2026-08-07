@@ -6,56 +6,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CafeManager.WinForms.Forms;
 
-public sealed class AccountManagementForm : Form
+public sealed partial class AccountManagementForm : Form
 {
-    private readonly DataGridView _grid = Ui.Grid();
-    private readonly TextBox _search = Ui.TextBox(210);
-    private readonly TextBox _username = Ui.TextBox();
-    private readonly TextBox _password = Ui.TextBox(220, true);
-    private readonly ComboBox _role = Ui.ComboBox();
-    private readonly ComboBox _employee = Ui.ComboBox();
-    private readonly CheckBox _active = new() { Text = "Đang hoạt động", Checked = true, AutoSize = true, Margin = new Padding(8) };
     private int? _selectedId;
 
     public AccountManagementForm()
     {
-        Text = "Quản lý tài khoản";
+        InitializeComponent();
         _role.DataSource = Enum.GetValues<AccountRole>();
-
-        var editor = new TableLayoutPanel
-        {
-            Dock = DockStyle.Right,
-            Width = 390,
-            Padding = new Padding(12),
-            ColumnCount = 2,
-            RowCount = 7
-        };
-        editor.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
-        editor.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        AddRow(editor, 0, "Tài khoản", _username);
-        AddRow(editor, 1, "Mật khẩu", _password);
-        AddRow(editor, 2, "Vai trò", _role);
-        AddRow(editor, 3, "Nhân viên", _employee);
-        editor.Controls.Add(_active, 1, 4);
-
-        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, WrapContents = true };
-        buttons.Controls.AddRange([
-            Ui.Button("Thêm", (_, _) => Add()),
-            Ui.Button("Cập nhật", (_, _) => UpdateItem()),
-            Ui.Button("Xóa", (_, _) => Delete()),
-            Ui.Button("Khóa/Mở", (_, _) => ToggleActive()),
-            Ui.Button("Reset MK", (_, _) => ResetPassword()),
-            Ui.Button("Làm mới", (_, _) => ClearEditor())
-        ]);
-        editor.Controls.Add(buttons, 0, 5);
-        editor.SetColumnSpan(buttons, 2);
-
-        Controls.Add(_grid);
-        Controls.Add(editor);
-        Controls.Add(Ui.Row(Ui.Label("Tìm tài khoản", 115), _search,
-            Ui.Button("Tìm", (_, _) => LoadData()),
-            Ui.Button("Tất cả", (_, _) => { _search.Clear(); LoadData(); })));
-
+        Ui.WireButton(this, "Thêm", (_, _) => Add());
+        Ui.WireButton(this, "Cập nhật", (_, _) => UpdateItem());
+        Ui.WireButton(this, "Xóa", (_, _) => Delete());
+        Ui.WireButton(this, "Khóa/Mở", (_, _) => ToggleActive());
+        Ui.WireButton(this, "Reset MK", (_, _) => ResetPassword());
+        Ui.WireButton(this, "Làm mới", (_, _) => ClearEditor());
+        Ui.WireButton(this, "Tìm", (_, _) => LoadData());
+        Ui.WireButton(this, "Tất cả", (_, _) => { _search.Clear(); LoadData(); });
         _grid.CellClick += (_, _) => SelectRow();
         Load += (_, _) => { LoadEmployees(); LoadData(); };
     }

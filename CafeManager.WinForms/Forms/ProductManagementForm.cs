@@ -5,62 +5,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CafeManager.WinForms.Forms;
 
-public sealed class ProductManagementForm : Form
+public sealed partial class ProductManagementForm : Form
 {
-    private readonly DataGridView _grid = Ui.Grid();
-    private readonly TextBox _search = Ui.TextBox(190);
-    private readonly ComboBox _filterCategory = Ui.ComboBox(190);
-    private readonly TextBox _name = Ui.TextBox();
-    private readonly NumericUpDown _price = new() { Width = 220, Maximum = 100_000_000, Increment = 1000, ThousandsSeparator = true, Font = Ui.NormalFont };
-    private readonly ComboBox _category = Ui.ComboBox();
-    private readonly CheckBox _available = new() { Text = "Còn bán", Checked = true, AutoSize = true, Margin = new Padding(8) };
-    private readonly TextBox _imagePath = Ui.TextBox();
-    private readonly PictureBox _picture = new() { Width = 220, Height = 170, SizeMode = PictureBoxSizeMode.Zoom, BorderStyle = BorderStyle.FixedSingle };
     private int? _selectedId;
 
     public ProductManagementForm()
     {
-        Text = "Quản lý đồ uống";
-
-        var editor = new TableLayoutPanel
-        {
-            Dock = DockStyle.Right,
-            Width = 420,
-            Padding = new Padding(12),
-            ColumnCount = 2,
-            RowCount = 9,
-            AutoScroll = true
-        };
-        editor.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 125));
-        editor.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        AddRow(editor, 0, "Tên món", _name);
-        AddRow(editor, 1, "Giá bán", _price);
-        AddRow(editor, 2, "Danh mục", _category);
-        editor.Controls.Add(_available, 1, 3);
-        AddRow(editor, 4, "Đường dẫn ảnh", _imagePath);
-        var chooseImage = Ui.Button("Chọn hình", (_, _) => ChooseImage(), 115);
-        editor.Controls.Add(chooseImage, 0, 5);
-        editor.Controls.Add(_picture, 1, 5);
-
-        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, WrapContents = true };
-        buttons.Controls.AddRange([
-            Ui.Button("Thêm", (_, _) => Add()),
-            Ui.Button("Cập nhật", (_, _) => UpdateItem()),
-            Ui.Button("Ngừng bán", (_, _) => ToggleAvailable()),
-            Ui.Button("Xóa", (_, _) => Delete()),
-            Ui.Button("Làm mới", (_, _) => ClearEditor())
-        ]);
-        editor.Controls.Add(buttons, 0, 7);
-        editor.SetColumnSpan(buttons, 2);
-
-        Controls.Add(_grid);
-        Controls.Add(editor);
-        Controls.Add(Ui.Row(
-            Ui.Label("Tìm món", 70), _search,
-            Ui.Label("Danh mục", 80), _filterCategory,
-            Ui.Button("Lọc", (_, _) => LoadData()),
-            Ui.Button("Tất cả", (_, _) => { _search.Clear(); _filterCategory.SelectedIndex = 0; LoadData(); })));
-
+        InitializeComponent();
+        Ui.WireButton(this, "Chọn hình", (_, _) => ChooseImage());
+        Ui.WireButton(this, "Thêm", (_, _) => Add());
+        Ui.WireButton(this, "Cập nhật", (_, _) => UpdateItem());
+        Ui.WireButton(this, "Ngừng bán", (_, _) => ToggleAvailable());
+        Ui.WireButton(this, "Xóa", (_, _) => Delete());
+        Ui.WireButton(this, "Làm mới", (_, _) => ClearEditor());
+        Ui.WireButton(this, "Lọc", (_, _) => LoadData());
+        Ui.WireButton(this, "Tất cả", (_, _) => { _search.Clear(); _filterCategory.SelectedIndex = 0; LoadData(); });
         _grid.CellClick += (_, _) => SelectRow();
         _imagePath.TextChanged += (_, _) => LoadPreview(_imagePath.Text);
         Load += (_, _) => { LoadCategories(); LoadData(); };

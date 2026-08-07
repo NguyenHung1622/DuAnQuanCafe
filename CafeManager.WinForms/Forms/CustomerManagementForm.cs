@@ -5,48 +5,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CafeManager.WinForms.Forms;
 
-public sealed class CustomerManagementForm : Form
+public sealed partial class CustomerManagementForm : Form
 {
-    private readonly DataGridView _grid = Ui.Grid();
-    private readonly DataGridView _historyGrid = Ui.Grid();
-    private readonly TextBox _search = Ui.TextBox(200);
-    private readonly TextBox _fullName = Ui.TextBox();
-    private readonly TextBox _phone = Ui.TextBox();
-    private readonly TextBox _address = Ui.TextBox();
-    private readonly NumericUpDown _points = new() { Width = 220, Maximum = 1_000_000, Font = Ui.NormalFont };
     private int? _selectedId;
 
     public CustomerManagementForm()
     {
-        Text = "Quản lý khách hàng";
-        var split = new SplitContainer { Dock = DockStyle.Fill, Orientation = Orientation.Horizontal, SplitterDistance = 390 };
-        split.Panel1.Controls.Add(_grid);
-        split.Panel2.Controls.Add(_historyGrid);
-        split.Panel2.Controls.Add(new Label { Text = "Lịch sử mua hàng", Dock = DockStyle.Top, Height = 35, Font = new Font("Segoe UI Semibold", 12F), TextAlign = ContentAlignment.MiddleLeft });
-
-        var editor = new TableLayoutPanel { Dock = DockStyle.Right, Width = 390, Padding = new Padding(15), ColumnCount = 2, RowCount = 6 };
-        editor.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
-        editor.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        AddRow(editor, 0, "Họ tên", _fullName);
-        AddRow(editor, 1, "Điện thoại", _phone);
-        AddRow(editor, 2, "Địa chỉ", _address);
-        AddRow(editor, 3, "Điểm", _points);
-        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, WrapContents = true };
-        buttons.Controls.AddRange([
-            Ui.Button("Thêm", (_, _) => Add()),
-            Ui.Button("Cập nhật", (_, _) => UpdateItem()),
-            Ui.Button("Xóa", (_, _) => Delete()),
-            Ui.Button("Cộng điểm", (_, _) => AddPoints()),
-            Ui.Button("Làm mới", (_, _) => ClearEditor())
-        ]);
-        editor.Controls.Add(buttons, 0, 4);
-        editor.SetColumnSpan(buttons, 2);
-
-        Controls.Add(split);
-        Controls.Add(editor);
-        Controls.Add(Ui.Row(Ui.Label("Tìm khách", 90), _search,
-            Ui.Button("Tìm", (_, _) => LoadData()),
-            Ui.Button("Tất cả", (_, _) => { _search.Clear(); LoadData(); })));
+        InitializeComponent();
+        Ui.WireButton(this, "Thêm", (_, _) => Add());
+        Ui.WireButton(this, "Cập nhật", (_, _) => UpdateItem());
+        Ui.WireButton(this, "Xóa", (_, _) => Delete());
+        Ui.WireButton(this, "Cộng điểm", (_, _) => AddPoints());
+        Ui.WireButton(this, "Làm mới", (_, _) => ClearEditor());
+        Ui.WireButton(this, "Tìm", (_, _) => LoadData());
+        Ui.WireButton(this, "Tất cả", (_, _) => { _search.Clear(); LoadData(); });
         _grid.CellClick += (_, _) => SelectRow();
         Load += (_, _) => LoadData();
     }
